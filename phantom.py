@@ -1,4 +1,5 @@
 import numpy as np 
+from scipy.ndimage import interpolation
 
 TISSUES = {'fat': 0.2, 'bone': 0.9, 'max': 1.0}
 
@@ -8,6 +9,10 @@ class Phantom(object):
         self.__size = size if size%2==1 else size+1
         self.__shape = (self.__size, self.__size)
         self.__data = np.zeros(self.__shape)
+
+    @property
+    def data(self):
+        return self.__data
 
     @property
     def size(self):
@@ -22,8 +27,10 @@ class Phantom(object):
 
     def create(self, withInlets=True):
         radius = self.size/2-1 
-        body = self.createCircularMask(self.shape, (radius,radius), radius)
-        self.__data[body] = TISSUES['fat']
+        #body = self.createCircularMask(self.shape, (radius,radius), radius)
+        #self.__data[body] = TISSUES['fat']
+        x = np.floor(np.sqrt(0.5)*self.size)/2
+        self.__data[x:self.size-x,x:self.size-x] = TISSUES['fat']
         
         if withInlets:
             for m in [int(x) for x in [0.5*radius, radius, 1.5*radius]]:
@@ -55,3 +62,10 @@ class Phantom(object):
         # angular mask
         anglemask = theta <= (tmax-tmin)
         return circmask*anglemask
+
+    def reshape(self, shape):
+        assert(np.product(self.data.shape) == np.product(shape))
+        return np.reshape(self.data, shape).copy()
+
+    def rotate(self, angle):
+         return interpolation.rotate(self.__data, angle, reshape=False)
