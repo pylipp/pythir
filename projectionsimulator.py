@@ -2,7 +2,8 @@
 
 import numpy as np 
 
-from phantom import Phantom
+from projections import Projections
+from systemmatrix import SystemMatrix
 
 class ProjectionSimulator(object):
 
@@ -35,66 +36,13 @@ class ProjectionSimulator(object):
 
         #project first view
         self.__projections.project(0, self.phantom)
+        #FIXME this is not correct. adjust add() or data to be added
         self.__systemMatrix.add(0, self.phantom.data > 0)
 
         angleInc = (stop-start)/float(views)
         for a in range(1, views):
-            if a%10==0:
+            if a%25==0:
                 print "Projecting view " + str(a)
             rotPhantom = self.phantom.rotate(a*angleInc)
             self.__systemMatrix.add(a, rotPhantom > 0)
             self.__projections.project(a, rotPhantom)
-
-
-class Projections(object):
-
-    def __init__(self, views, nrBins):
-        self.__views = views 
-        self.__nrBins = nrBins 
-        self.__data = np.zeros((views, nrBins))
-
-    @property
-    def data(self):
-        return self.__data
-
-    @property 
-    def data1d(self):
-        return np.ravel(self.__data)
-
-    @property
-    def size(self):
-        return np.product(self.__data.shape)
-
-    def project(self, view, phantom):
-        if isinstance(phantom, Phantom):
-            phantom = phantom.data
-        self.__data[view, :] = np.sum(phantom, axis=0)
-
-
-class SystemMatrix(object):
-
-    def __init__(self, dimensions):
-        self.__dimensions = dimensions 
-        self.__data = np.zeros(dimensions)
-
-    @property
-    def data(self):
-        return self.__data
-
-    @property 
-    def data2d(self):
-        a,b,c = self.__dimensions
-        return self.__data.reshape(a, b*c)
-
-    @property
-    def shape(self):
-        """ Algebraic 2D shape. """
-        a,b,c = self.__dimensions 
-        return (a, b*c)
-
-    def add(self, view, data):
-        self.data[view,:,:] = data
-
-    def reshape(self, shape):
-        assert(np.product(shape) == np.product(self.__dimensions))
-        return np.reshape(self.data, shape).copy()
