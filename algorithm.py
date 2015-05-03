@@ -23,9 +23,10 @@ class Algorithm(object):
     def computeART(self, nrIter, projections, systemMatrix, result):
         result = np.zeros(systemMatrix.shape[1])
         for n in range(nrIter):
-            for j in range(projections.size):
+            print "Computing iteration " + str(n)
+            for j in range(projections.totalSize):
                 ravProjections = projections.data1d
-                currentSM = systemMatrix.data2d[j/101.0,:]
+                currentSM = systemMatrix.data2d[j/projections.nrBins,:]
                 backprojection = ravProjections[j] - np.sum(currentSM * result)
                 normalization = np.sum(currentSM * currentSM)
                 update = currentSM * backprojection / normalization 
