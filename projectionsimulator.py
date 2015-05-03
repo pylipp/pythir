@@ -57,6 +57,14 @@ class Projections(object):
     def data(self):
         return self.__data
 
+    @property 
+    def data1d(self):
+        return np.ravel(self.__data)
+
+    @property
+    def size(self):
+        return np.product(self.__data.shape)
+
     def project(self, view, phantom):
         if isinstance(phantom, Phantom):
             phantom = phantom.data
@@ -72,6 +80,17 @@ class SystemMatrix(object):
     @property
     def data(self):
         return self.__data
+
+    @property 
+    def data2d(self):
+        a,b,c = self.__dimensions
+        return self.__data.reshape(a, b*c)
+
+    @property
+    def shape(self):
+        """ Algebraic 2D shape. """
+        a,b,c = self.__dimensions 
+        return (a, b*c)
 
     def add(self, view, data):
         self.data[view,:,:] = data
