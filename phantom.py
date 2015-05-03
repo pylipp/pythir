@@ -27,10 +27,10 @@ class Phantom(object):
 
     def create(self, withInlets=True):
         radius = self.size/2-1 
-        #body = self.createCircularMask(self.shape, (radius,radius), radius)
-        #self.__data[body] = TISSUES['fat']
-        x = np.floor(np.sqrt(0.5)*self.size)/2
-        self.__data[x:self.size-x,x:self.size-x] = TISSUES['fat']
+        body = self.createCircularMask(self.shape, (radius,radius), radius)
+        self.__data[body] = TISSUES['fat']
+        #x = np.floor(np.sqrt(0.5)*self.size)/2
+        #self.__data[x:self.size-x,x:self.size-x] = TISSUES['fat']
         
         if withInlets:
             for m in [int(x) for x in [0.5*radius, radius, 1.5*radius]]:
