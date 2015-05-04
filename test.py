@@ -37,4 +37,4 @@ views = 400
 from program import Program 
 p = Program()
 p.compute()
-#plot(np.sum(srs, axis=1))
+p.plot(p.result.reshape((101,101)))
