@@ -25,12 +25,17 @@ class Algorithm(object):
         for n in range(nrIter):
             print "Computing iteration " + str(n)
             for j in range(projections.totalSize):
-                ravProjections = projections.data1d
-                currentSM = systemMatrix.data2d[j/projections.nrBins,:]
-                backprojection = ravProjections[j] - np.sum(currentSM * result)
-                normalization = np.sum(currentSM * currentSM)
-                update = currentSM * backprojection / normalization 
-                result += update
+                try:
+                    view = j/projections.nrBins
+                    ravProjections = projections.data1d
+                    currentSmLine = systemMatrix.data[view, :, j%projections.nrBins]
+                    currentResultLine = result[j%projections.nrBins::projections.nrBins]
+                    backprojection = ravProjections[j] - np.sum(currentSmLine * currentResultLine)
+                    normalization = np.sum(currentSmLine * currentSmLine)
+                    update = currentSmLine * backprojection / normalization if normalization > 0 else 0.0
+                    currentResultLine += update
+                except ValueError:
+                    import pdb; pdb.set_trace()
         self.__result = result
 
 class Mode:
