@@ -37,12 +37,12 @@ class ProjectionSimulator(object):
         #project first view
         self.__projections.project(0, self.phantom)
         #FIXME this is not correct. adjust add() or data to be added
-        self.__systemMatrix.add(0, self.phantom.data > 0)
+        self.__systemMatrix.add(0, self.phantom.data > 0.01)
 
         angleInc = (stop-start)/float(views)
         for a in range(1, views):
             if a%25==0:
                 print "Projecting view " + str(a)
-            rotPhantom = self.phantom.rotate(a*angleInc)
+            rotPhantom = self.phantom.rotate(-a*angleInc)
             self.__systemMatrix.add(a, rotPhantom > 0)
             self.__projections.project(a, rotPhantom)
