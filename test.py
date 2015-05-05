@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np 
 
 def plot(data):
-    plt.imshow(data, "gray")
+    plt.imshow(data, "gray", interpolation="nearest")
     plt.show()
 
 def createSinogram(size, start, stop, views):
@@ -35,6 +35,13 @@ views = 400
 
 
 from program import Program 
-p = Program()
+ph = Phantom(fileName="shepp-logan512.png")
+p = Program(ph)
 p.compute()
-p.plot(p.result.reshape((101,101)))
+
+plt.subplot(131)
+p.plot(p.result)
+plt.subplot(132)
+plt.imshow(p._Program__phantom.data, "gray", interpolation="nearest")
+plt.subplot(133)
+plt.imshow(p._Program__phantom.data - p.result, "gray", interpolation="nearest")
