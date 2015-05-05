@@ -22,7 +22,7 @@ class Program(object):
         self.__sinogram = self.__projectionSimulator.projections 
         self.__systemMatrix = self.__projectionSimulator.systemMatrix 
 
-        self.__algorithm = Algorithm(Mode.ART, self.__sinogram, self.__systemMatrix, 10)
+        self.__algorithm = Algorithm(Mode.SUBTRACTIVE_ART, self.__sinogram, self.__systemMatrix, 1)
         self.__result = None
 
         self.__figureIndex = 0
