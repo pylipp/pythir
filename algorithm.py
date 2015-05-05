@@ -1,6 +1,7 @@
 #!/usr/bin/python 
 
 import numpy as np 
+import time
 
 class Algorithm(object):
 
@@ -16,27 +17,28 @@ class Algorithm(object):
         return self.__result 
 
     def compute(self):
-        self.__result = np.zeros(self.__systemMatrix.shape[1])
         if self.__mode == Mode.ART:
             self.computeART(self.__nrIter, self.__projections, self.__systemMatrix, self.__result)
 
     def computeART(self, nrIter, projections, systemMatrix, result):
-        result = np.zeros(systemMatrix.shape[1])
+        estimate = np.zeros_like(systemMatrix.data[0])
+        start = time.time()
         for n in range(nrIter):
             print "Computing iteration " + str(n)
-            for j in range(projections.totalSize):
+            for v in range(projections.views):
                 try:
-                    view = j/projections.nrBins
-                    ravProjections = projections.data1d
-                    currentSmLine = systemMatrix.data[view, :, j%projections.nrBins]
-                    currentResultLine = result[j%projections.nrBins::projections.nrBins]
-                    backprojection = ravProjections[j] - np.sum(currentSmLine * currentResultLine)
-                    normalization = np.sum(currentSmLine * currentSmLine)
-                    update = currentSmLine * backprojection / normalization if normalization > 0 else 0.0
-                    currentResultLine += update
+                    currentSm = systemMatrix.data[v]
+                    currentProjections = projections.data[v]
+                    backprojection = np.sum(currentSm * estimate, axis=0)
+                    normalization = np.sum(currentSm * currentSm, axis=0)
+                    normalization[normalization == 0] = 1.0
+                    update = currentSm * (currentProjections - backprojection) / normalization 
+                    estimate += update
                 except ValueError:
                     import pdb; pdb.set_trace()
-        self.__result = result
+        end = time.time()
+        print "Computation time for ART: " + str(end-start)
+        self.__result = estimate
 
 class Mode:
     ART = 0
