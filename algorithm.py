@@ -19,9 +19,11 @@ class Algorithm(object):
 
     def compute(self):
         if self.__mode == Mode.SUBTRACTIVE_ART:
-            self.computeSubtractiveART(self.__nrIter, self.__projections, self.__systemMatrix, self.__result)
+            self.computeSubtractiveART(self.__nrIter, self.__projections, self.__systemMatrix)
+        elif self.__mode == Mode.MULTIPLICATIVE_ART:
+            self.computeMultiplicativeART()
 
-    def computeSubtractiveART(self, nrIter, projections, systemMatrix, result):
+    def computeSubtractiveART(self, nrIter, projections, systemMatrix):
         estimate = np.zeros_like(systemMatrix.data[0])
         start = time.time()
         for n in range(nrIter):
@@ -40,8 +42,33 @@ class Algorithm(object):
                 except ValueError:
                     import pdb; pdb.set_trace()
         end = time.time()
-        print "Computation time for ART: " + str(end-start)
+        print "Computation time for subtractive ART: " + str(end-start)
+        self.__result = estimate
+
+    def computeMultiplicativeART(self):
+        nrIter = self.__nrIter 
+        projections = self.__projections 
+        systemMatrix = self.__systemMatrix
+        estimate = 50*np.ones_like(systemMatrix.data[0])
+        start = time.time()
+        for n in range(nrIter):
+            print "Computing iteration " + str(n)
+            for v in range(projections.views):
+                try:
+                    currentSm = systemMatrix.data[v]
+                    angle = v*180/float(projections.views)
+                    rotatedEstimate = interpolation.rotate(estimate, -angle, reshape=False)
+                    backprojection = np.sum(currentSm * rotatedEstimate, axis=0)
+                    update = np.ones_like(backprojection)
+                    update[backprojection > 0] = projections.data[v][backprojection > 0] / backprojection[backprojection > 0]
+                    updateMatrix = np.tile(update, (currentSm.shape[0], 1))
+                    estimate *= interpolation.rotate(updateMatrix, angle, reshape=False)
+                except (ValueError, IndexError):
+                    import pdb; pdb.set_trace()
+        end = time.time()
+        print "Computation time for multiplicative ART: " + str(end-start)
         self.__result = estimate
 
 class Mode:
     SUBTRACTIVE_ART = 0
+    MULTIPLICATIVE_ART = 1
