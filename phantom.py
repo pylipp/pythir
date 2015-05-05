@@ -1,14 +1,22 @@
 import numpy as np 
+import matplotlib.pyplot as plt
 from scipy.ndimage import interpolation
 
 TISSUES = {'fat': 0.2, 'bone': 0.9, 'max': 1.0}
 
 class Phantom(object):
 
-    def __init__(self, size):
-        self.__size = size if size%2==1 else size+1
-        self.__shape = (self.__size, self.__size)
-        self.__data = np.zeros(self.__shape)
+    def __init__(self, **kwargs):
+        for key in kwargs.iterkeys():
+            if key == 'fileName':
+                inputData = plt.imread(kwargs[key])
+                self.__data = inputData[:,:,0]
+                self.__shape = self.__data.shape 
+                self.__size = self.__shape[0]
+            elif key == 'size':
+                self.__size = kwargs[key] 
+                self.__shape = (self.__size, self.__size)
+                self.__data = np.zeros(self.__shape)
 
     @property
     def data(self):
