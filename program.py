@@ -9,13 +9,15 @@ from projectionsimulator import ProjectionSimulator
 
 class Program(object):
 
-    def __init__(self):
-        size = 101
-        self.__phantom = Phantom(size)
-        self.__phantom.create() 
+    def __init__(self, phantom=None):
+        if phantom is None:
+            self.__phantom = Phantom(101) 
+            self.__phantom.create() 
+        else:
+            self.__phantom = phantom
 
         self.__projectionSimulator = ProjectionSimulator(self.__phantom)
-        self.__projectionSimulator.projectAll(size, 0, 360, 100)
+        self.__projectionSimulator.projectAll(self.__phantom.size, 0, 180, 100)
 
         self.__sinogram = self.__projectionSimulator.projections 
         self.__systemMatrix = self.__projectionSimulator.systemMatrix 
@@ -34,7 +36,7 @@ class Program(object):
         self.__result = self.__algorithm.result
 
     def plot(self, data):
-        plt.figure(self.__figureIndex)
+        #plt.figure(self.__figureIndex)
         self.__figureIndex += 1
-        plt.imshow(data, cmap="gray")
-        plt.show()
+        plt.imshow(data, cmap="gray", interpolation="nearest")
+        #plt.show()
