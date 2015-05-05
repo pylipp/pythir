@@ -2,6 +2,7 @@
 
 import numpy as np 
 import time
+from scipy.ndimage import interpolation 
 
 class Algorithm(object):
 
@@ -28,12 +29,13 @@ class Algorithm(object):
             for v in range(projections.views):
                 try:
                     currentSm = systemMatrix.data[v]
-                    currentProjections = projections.data[v]
-                    backprojection = np.sum(currentSm * estimate, axis=0)
+                    angle = v*180/float(projections.views)
+                    rotatedEstimate = interpolation.rotate(estimate, -angle, reshape=False)
+                    backprojection = np.sum(currentSm * rotatedEstimate, axis=0)
                     normalization = np.sum(currentSm * currentSm, axis=0)
                     normalization[normalization == 0] = 1.0
-                    update = currentSm * (currentProjections - backprojection) / normalization 
-                    estimate += update
+                    update = currentSm * (projections.data[v] - backprojection) / normalization 
+                    estimate += interpolation.rotate(update, angle, reshape=False)
                 except ValueError:
                     import pdb; pdb.set_trace()
         end = time.time()
