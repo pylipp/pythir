@@ -18,10 +18,10 @@ class Algorithm(object):
         return self.__result 
 
     def compute(self):
-        if self.__mode == Mode.ART:
-            self.computeART(self.__nrIter, self.__projections, self.__systemMatrix, self.__result)
+        if self.__mode == Mode.SUBTRACTIVE_ART:
+            self.computeSubtractiveART(self.__nrIter, self.__projections, self.__systemMatrix, self.__result)
 
-    def computeART(self, nrIter, projections, systemMatrix, result):
+    def computeSubtractiveART(self, nrIter, projections, systemMatrix, result):
         estimate = np.zeros_like(systemMatrix.data[0])
         start = time.time()
         for n in range(nrIter):
@@ -33,9 +33,10 @@ class Algorithm(object):
                     rotatedEstimate = interpolation.rotate(estimate, -angle, reshape=False)
                     backprojection = np.sum(currentSm * rotatedEstimate, axis=0)
                     normalization = np.sum(currentSm * currentSm, axis=0)
-                    normalization[normalization == 0] = 1.0
+                    normalization[normalization == 0] = 1.0 #avoid division by zero 
                     update = currentSm * (projections.data[v] - backprojection) / normalization 
                     estimate += interpolation.rotate(update, angle, reshape=False)
+                    estimate[estimate < 0] = 0.0 #nonnegativity constraint
                 except ValueError:
                     import pdb; pdb.set_trace()
         end = time.time()
@@ -43,4 +44,4 @@ class Algorithm(object):
         self.__result = estimate
 
 class Mode:
-    ART = 0
+    SUBTRACTIVE_ART = 0
