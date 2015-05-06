@@ -5,18 +5,36 @@ from scipy.ndimage import interpolation
 TISSUES = {'fat': 0.2, 'bone': 0.9, 'max': 1.0}
 
 class Phantom(object):
+    """
+    Represents phantom slice. 
+    First, this is the basis for the projection simulation. 
+    Later it serves as reference image to the reconstructed image.
+    The data (i.e. gray value intensities) is hold in a quadratic 2D-array. 
+    """
 
     def __init__(self, **kwargs):
+        """
+        To initialize a phantom, one can either load an appropriate image file
+        (note that the first channel of color images is selected) or
+        create a simple circular shape with three inlets.
+        Pass arguments using key words.
+
+        :param      fileName | str
+                    size | int 
+        :attrib     __data | numpy.2darray
+                    __size | int 
+                    __shape | 2-tuple[int]
+        """
+        self.__size = None
+        self.__shape = None
+        self.__fileName = None
+        self.__data = None
         for key in kwargs.iterkeys():
             if key == 'fileName':
-                inputData = plt.imread(kwargs[key])
-                self.__data = inputData[:,:,0]
-                self.__shape = self.__data.shape 
-                self.__size = self.__shape[0]
+                self.__fileName = kwargs[key]
             elif key == 'size':
                 self.__size = kwargs[key] 
                 self.__shape = (self.__size, self.__size)
-                self.__data = np.zeros(self.__shape)
 
     @property
     def data(self):
@@ -33,17 +51,37 @@ class Phantom(object):
     def __getitem__(self, index):
         return self.__data[index]
 
-    def create(self, withInlets=True):
+    def create(self):
+        """
+        This method should be called after the initialization of a phantom. 
+        First it loads data from a file if a file name has been given. 
+        Otherwise it creates a simple phantom. 
+        """
+        if self.__fileName is not None:
+            try:
+                inputData = plt.imread(self.__fileName)
+                if len(inputData.shape) == 3:
+                    self.__data = inputData[:,:,0]
+                elif len(inputData.shape) == 2:
+                    self.__data = inputData
+                self.__shape = self.__data.shape 
+                self.__size = self.__shape[0]
+                return
+            except IOError as e:
+                print str(e)
+        if self.size is None:
+            print "No phantom created."
+            return
+
         radius = self.size/2-1 
         body = self.createCircularMask(self.shape, (radius,radius), radius)
+        self.__data = np.zeros(self.__shape)
         self.__data[body] = TISSUES['fat']
-        #x = np.floor(np.sqrt(0.5)*self.size)/2
-        #self.__data[x:self.size-x,x:self.size-x] = TISSUES['fat']
         
-        if withInlets:
-            for m in [int(x) for x in [0.5*radius, radius, 1.5*radius]]:
-                inlet = self.createCircularMask(self.shape, (m,radius), 0.1*radius)
-                self.__data[inlet] = TISSUES['bone']
+        #create the inlets
+        for m in [int(x) for x in [0.5*radius, radius, 1.5*radius]]:
+            inlet = self.createCircularMask(self.shape, (m,radius), 0.1*radius)
+            self.__data[inlet] = TISSUES['bone']
 
     def createCircularMask(self, shape, centre, radius, angle_range=(0,360)):
         """
