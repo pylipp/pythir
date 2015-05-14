@@ -35,13 +35,15 @@ views = 400
 
 
 from program import Program 
-ph = Phantom(fileName="shepp-logan512.png")
-p = Program(ph)
+#ph = Phantom(fileName="shepp-logan512.png")
+#ph.create()
+p = Program()
 p.compute()
+p.computeRmse()
 
-plt.subplot(131)
-p.plot(p.result)
-plt.subplot(132)
-plt.imshow(p._Program__phantom.data, "gray", interpolation="nearest")
-plt.subplot(133)
-plt.imshow(p._Program__phantom.data - p.result, "gray", interpolation="nearest")
+#plt.subplot(131)
+#p.plot(p.result)
+#plt.subplot(132)
+#plt.imshow(p._Program__phantom.data, "gray", interpolation="nearest")
+#plt.subplot(133)
+#plt.imshow(p._Program__phantom.data - p.result, "gray", interpolation="nearest")
