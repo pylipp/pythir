@@ -11,7 +11,7 @@ class Algorithm(object):
         self.__projections = projections 
         self.__systemMatrix = systemMatrix 
         self.__nrIter = nrIter
-        self.__result = None 
+        self.__result = []
 
     @property 
     def result(self):
@@ -25,6 +25,7 @@ class Algorithm(object):
 
     def computeSubtractiveART(self, nrIter, projections, systemMatrix):
         estimate = np.zeros_like(systemMatrix.data[0])
+        self.__result = []
         start = time.time()
         for n in range(nrIter):
             print "Computing iteration " + str(n)
@@ -41,15 +42,16 @@ class Algorithm(object):
                     estimate[estimate < 0] = 0.0 #nonnegativity constraint
                 except ValueError:
                     import pdb; pdb.set_trace()
+            self.__result.append(estimate.copy())
         end = time.time()
         print "Computation time for subtractive ART: " + str(end-start)
-        self.__result = estimate
 
     def computeMultiplicativeART(self):
         nrIter = self.__nrIter 
         projections = self.__projections 
         systemMatrix = self.__systemMatrix
         estimate = 50*np.ones_like(systemMatrix.data[0])
+        self.__result = []
         start = time.time()
         for n in range(nrIter):
             print "Computing iteration " + str(n)
@@ -65,9 +67,9 @@ class Algorithm(object):
                     estimate *= interpolation.rotate(updateMatrix, angle, reshape=False)
                 except (ValueError, IndexError):
                     import pdb; pdb.set_trace()
+            self.__result.append(estimate.copy())
         end = time.time()
         print "Computation time for multiplicative ART: " + str(end-start)
-        self.__result = estimate
 
 class Mode:
     SUBTRACTIVE_ART = 0
