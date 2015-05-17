@@ -26,7 +26,6 @@ class Phantom(object):
                     __shape | 2-tuple[int]
         """
         self.__size = None
-        self.__shape = None
         self.__fileName = None
         self.__data = None
         for key in kwargs.iterkeys():
@@ -34,11 +33,14 @@ class Phantom(object):
                 self.__fileName = kwargs[key]
             elif key == 'size':
                 self.__size = kwargs[key] 
-                self.__shape = (self.__size, self.__size)
 
     @property
     def data(self):
         return self.__data
+
+    @property 
+    def fileName(self):
+        return self.__fileName 
 
     @property
     def size(self):
@@ -46,7 +48,7 @@ class Phantom(object):
 
     @property
     def shape(self):
-        return self.__shape 
+        return self.__data.shape 
 
     def __getitem__(self, index):
         return self.__data[index]
@@ -64,8 +66,7 @@ class Phantom(object):
                     self.__data = inputData[:,:,0]
                 elif len(inputData.shape) == 2:
                     self.__data = inputData
-                self.__shape = self.__data.shape 
-                self.__size = self.__shape[0]
+                self.__size = np.max(self.data.shape)
                 return
             except IOError as e:
                 print str(e)
@@ -74,13 +75,14 @@ class Phantom(object):
             return
 
         radius = self.size/2-1 
-        body = self.createCircularMask(self.shape, (radius,radius), radius)
-        self.__data = np.zeros(self.__shape)
+        shape = (self.size, self.size)
+        body = self.createCircularMask(shape, (radius,radius), radius)
+        self.__data = np.zeros(shape)
         self.__data[body] = TISSUES['fat']
         
         #create the inlets
         for m in [int(x) for x in [0.5*radius, radius, 1.5*radius]]:
-            inlet = self.createCircularMask(self.shape, (m,radius), 0.1*radius)
+            inlet = self.createCircularMask(shape, (m,radius), 0.1*radius)
             self.__data[inlet] = TISSUES['bone']
 
     def createCircularMask(self, shape, centre, radius, angle_range=(0,360)):
