@@ -1,5 +1,6 @@
-from phantom import Phantom
-from projectionsimulator import ProjectionSimulator
+from src.base.phantom import Phantom
+from src.base.projectionsimulator import ProjectionSimulator
+from src.base.program import Program 
 
 import matplotlib.pyplot as plt
 import numpy as np 
@@ -34,7 +35,6 @@ views = 400
 #srs = s.reshape(views, size, size)
 
 
-from program import Program 
 #ph = Phantom(fileName="shepp-logan512.png")
 #ph.create()
 p = Program()
