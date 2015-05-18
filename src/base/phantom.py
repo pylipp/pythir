@@ -10,6 +10,8 @@ class Phantom(object):
     First, this is the basis for the projection simulation. 
     Later it serves as reference image to the reconstructed image.
     The data (i.e. gray value intensities) is hold in a quadratic 2D-array. 
+    Size and shape are given in pixels. 
+    A default conversion factor to millimeters is provided.
     """
 
     def __init__(self, **kwargs):
@@ -28,6 +30,7 @@ class Phantom(object):
         self.__size = None
         self.__fileName = None
         self.__data = None
+        self.__pixelToMm = 1.0
         for key in kwargs.iterkeys():
             if key == 'fileName':
                 self.__fileName = kwargs[key]
@@ -67,6 +70,7 @@ class Phantom(object):
                 elif len(inputData.shape) == 2:
                     self.__data = inputData
                 self.__size = np.max(self.data.shape)
+                #FIXME phantom shape should be quadratic.
                 return
             except IOError as e:
                 print str(e)

@@ -18,6 +18,8 @@ class Program(object):
             self.__phantom = phantom
 
         self.__projectionSimulator = ProjectionSimulator(self.__phantom)
+        self.__projectionSimulator.initProjections(self.__phantom.size, 100)
+        self.__projectionSimulator.initSystemMatrix(101, 100)
         self.__projectionSimulator.projectAll(self.__phantom.size, 0, 180, 100)
 
         self.__sinogram = self.__projectionSimulator.projections 

@@ -1,11 +1,19 @@
 #!/usr/bin/python 
 
-import numpy as np 
-
 from projections import Projections
 from systemmatrix import SystemMatrix
 
 class ProjectionSimulator(object):
+    """
+    Simple class to simulate parallel-beam x-ray projections of a phantom. 
+    Since the projections are usually obtained from a phantom, it's preferred
+    (for convenience) to match the number of bins to the pixel size of the
+    phantom. Otherwise, the phantom needs to be resized before being projected.
+    If the reconstruction is performed using a binary system matrix, that
+    matrix can be evaluated during the projection. 
+    """
+    #FIXME The system matrix evaluation should be handled separately, with an
+    #accordingly sampled phantom
 
     def __init__(self, phantom=None):
         self.__phantom = phantom 
@@ -24,15 +32,19 @@ class ProjectionSimulator(object):
     def systemMatrix(self):
         return self.__systemMatrix
 
-    def projectAll(self, nrBins, start, stop, views):
-        if self.phantom is None:
-            return 
-        assert(nrBins == self.phantom.size)
-
-        # initialize bins 
+    def initProjections(self, nrBins, views):
         self.__projections = Projections(views, nrBins)
-        size = self.phantom.size 
+
+    def initSystemMatrix(self, size=None, views=None):
+        #FIXME phantom needs to be shrinked
         self.__systemMatrix = SystemMatrix((views,size,size))
+
+    def projectAll(self, nrBins, start, stop, views):
+        if self.phantom is None or self.projections is None or \
+                self.systemMatrix is None:
+            return 
+        if nrBins != self.phantom.size:
+            pass #resize phantom
 
         #project first view
         self.__projections.project(0, self.phantom)

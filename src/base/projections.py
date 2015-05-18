@@ -5,6 +5,7 @@ class Projections(object):
     """
     Represents all projections available to reconstruction. 
     Holds data container with line integral values. 
+    A 2D plot of this container yields the projection sinogram.
     """
     def __init__(self, views, nrBins):
         """
