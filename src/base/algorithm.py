@@ -47,6 +47,7 @@ class Algorithm(object):
 
         :param      mode | Algorithm.mode 
         """
+        #TODO unify the argument structure of the compute submethods
         if self.__mode == Algorithm.Mode.ADDITIVE_ART:
             self.computeAdditiveART(self.__nrIter, self.__projections, self.__systemMatrix)
         elif self.__mode == Algorithm.Mode.MULTIPLICATIVE_ART:

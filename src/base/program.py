@@ -96,6 +96,8 @@ class Program(object):
 
         if self.phantom is None:
             return 
+        if self.phantom.size is None: #error prone
+            return 
         self.__projectionSimulator = ProjectionSimulator(views,
                 self.phantom.size, self.phantom)
         self.__projectionSimulator.initProjections()
