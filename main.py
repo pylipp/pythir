@@ -35,9 +35,11 @@ views = 400
 #srs = s.reshape(views, size, size)
 
 
-#ph = Phantom(fileName="shepp-logan512.png")
-#ph.create()
-p = Program()
+ph = Phantom(fileName="src/images/shepp-logan512.png")
+ph.create()
+p = Program(ph)
+#p = Program()
+p.setUp(nrIter=1, views=360)
 p.compute()
 p.computeRmse()
 
