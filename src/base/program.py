@@ -3,34 +3,28 @@
 import matplotlib.pyplot as plt 
 import numpy as np
 
-from algorithm import Algorithm, Mode
+from algorithm import Algorithm
 from phantom import Phantom 
 from projectionsimulator import ProjectionSimulator
+from systemmatrixevaluator import SystemMatrixEvaluator
 
 
 class Program(object):
 
     def __init__(self, phantom=None):
-        if phantom is None:
-            self.__phantom = Phantom(size=101) 
-            self.__phantom.create() 
-        else:
-            self.__phantom = phantom
-
-        self.__projectionSimulator = ProjectionSimulator(self.__phantom)
-        self.__projectionSimulator.initProjections(self.__phantom.size, 100)
-        self.__projectionSimulator.initSystemMatrix(101, 100)
-        self.__projectionSimulator.projectAll(self.__phantom.size, 0, 180, 100)
-
-        self.__sinogram = self.__projectionSimulator.projections 
-        self.__systemMatrix = self.__projectionSimulator.systemMatrix 
-
-        self.__algorithm = Algorithm(Mode.MULTIPLICATIVE_ART, self.__sinogram,
-                self.__systemMatrix, 10)
+        self.__phantom = phantom
+        self.__projectionSimulator = None 
+        self.__systemMatrix = None 
+        self.__systemMatrixEvaluator = None 
+        self.__algorithm = None
+        self.__sinogram = None
         self.__result = None
         self.__rmse = None
-
         self.__figureIndex = 0
+
+    @property 
+    def phantom(self):
+        return self.__phantom
 
     @property 
     def result(self):
@@ -39,6 +33,14 @@ class Program(object):
     @property
     def rmse(self):
         return self.__rmse
+
+    @property 
+    def sinogram(self):
+        return self.__sinogram 
+
+    @property 
+    def systemMatrix(self):
+        return self.__systemMatrix 
 
     def compute(self):
         self.__algorithm.compute()
@@ -64,3 +66,26 @@ class Program(object):
         self.__figureIndex += 1
         plt.imshow(data, cmap="gray", interpolation="nearest")
         #plt.show()
+
+    def setUp(self, views=100, start=0, stop=180, nrIter=10,
+            mode=Algorithm.Mode.ADDITIVE_ART):
+        if self.phantom is None:
+            self.__phantom = Phantom(size=101) 
+            self.__phantom.create() 
+
+        if self.phantom is None:
+            return 
+        self.__projectionSimulator = ProjectionSimulator(views,
+                self.phantom.size, self.phantom)
+        self.__projectionSimulator.initProjections()
+        self.__projectionSimulator.projectAll(start, stop)
+
+        self.__sinogram = self.__projectionSimulator.projections 
+
+        self.__systemMatrixEvaluator = SystemMatrixEvaluator(views,
+                self.phantom.size, SystemMatrixEvaluator.Mode.ROTATIONAL)
+        self.__systemMatrixEvaluator.initSystemMatrix(self.phantom.size, views)
+        self.__systemMatrixEvaluator.evaluate(start, stop, self.phantom)
+        self.__systemMatrix = self.__systemMatrixEvaluator.systemMatrix 
+
+        self.__algorithm = Algorithm(mode, self.sinogram, self.systemMatrix, nrIter)
