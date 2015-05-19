@@ -10,7 +10,10 @@ from systemmatrixevaluator import SystemMatrixEvaluator
 
 
 class Program(object):
-
+    """
+    Main class that wraps all object initializations and the subsequent
+    computations.
+    """
     def __init__(self, phantom=None):
         self.__phantom = phantom
         self.__projectionSimulator = None 
@@ -43,10 +46,20 @@ class Program(object):
         return self.__systemMatrix 
 
     def compute(self):
+        """ Starts the computation in the algorithm and stores the result. """
+        if self.__algorithm is None:
+            return
         self.__algorithm.compute()
         self.__result = self.__algorithm.result
 
     def computeRmse(self, groundTruth=None):
+        """
+        Evaluates the quality of a reconstructed slice (after a certain number
+        of iterations) using the Root Mean Square Error w.r.t. the ground truth
+        phantom. 
+
+        :param      groundTruth | np.2darray or None 
+        """
         if groundTruth is None:
             groundTruth = self.__phantom.data
         iteration = []
@@ -62,6 +75,7 @@ class Program(object):
         self.__rmse = (np.array(iteration), np.array(rmse))
 
     def plot(self, data):
+        """ Plot routine for convenience. """
         #plt.figure(self.__figureIndex)
         self.__figureIndex += 1
         plt.imshow(data, cmap="gray", interpolation="nearest")
@@ -69,6 +83,13 @@ class Program(object):
 
     def setUp(self, views=100, start=0, stop=180, nrIter=10,
             mode=Algorithm.Mode.ADDITIVE_ART):
+        """
+        Subsequently sets up the phantom, simulated projections, system matrix.
+        Eventually creates the algorithm. 
+
+        :param      view, start, stop, nrIter | int 
+                    mode | Algorithm.Mode 
+        """
         if self.phantom is None:
             self.__phantom = Phantom(size=101) 
             self.__phantom.create() 
@@ -88,4 +109,6 @@ class Program(object):
         self.__systemMatrixEvaluator.evaluate(start, stop, self.phantom)
         self.__systemMatrix = self.__systemMatrixEvaluator.systemMatrix 
 
+        if self.systemMatrix is None or self.sinogram is None:
+            return
         self.__algorithm = Algorithm(mode, self.sinogram, self.systemMatrix, nrIter)

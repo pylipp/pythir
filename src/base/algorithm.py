@@ -6,12 +6,31 @@ from scipy.ndimage import interpolation
 from . import enum
 
 class Algorithm(object):
-
+    """
+    Class performing the essential numerical computations.
+    Appends the result of each iteration to a list. 
+    Description of Modes:
+    - ADDITIVE_ART: The difference of the (measured/simulated) projections and
+      the current forward-projected estimate is back-projected in direction of
+      the current view. The resulting update is added to the current estimate. 
+      Using SystemMatrixEvaluator.ROTATIONAL mode, one iteration already yields
+      sufficient results.
+    - MULTIPLICATIVE_ART: The current forward-projected estimate is
+      multiplicated with the current estimate. Currently, the implementation
+      diverges. 
+    """
     Mode = enum(
             ADDITIVE_ART=0, 
             MULTIPLICATIVE_ART=1 )
 
     def __init__(self, mode, projections, systemMatrix, nrIter):
+        """ 
+        :param      mode | Algorithm.Mode 
+                    projections | Projections 
+                    systemmatrix | SystemMatrix 
+                    nrIter | int 
+        :attrib     __result | list[np.2darray]
+        """
         self.__mode = mode
         self.__projections = projections 
         self.__systemMatrix = systemMatrix 
@@ -23,12 +42,21 @@ class Algorithm(object):
         return self.__result 
 
     def compute(self):
+        """ 
+        Calls computation method according to mode. 
+
+        :param      mode | Algorithm.mode 
+        """
         if self.__mode == Algorithm.Mode.ADDITIVE_ART:
             self.computeAdditiveART(self.__nrIter, self.__projections, self.__systemMatrix)
         elif self.__mode == Algorithm.Mode.MULTIPLICATIVE_ART:
             self.computeMultiplicativeART()
 
     def computeAdditiveART(self, nrIter, projections, systemMatrix):
+        """
+        Computes the algebraic reconstruction using an additive update method
+        as described above. 
+        """
         estimate = np.zeros_like(systemMatrix.data[0])
         self.__result = []
         start = time.time()
@@ -52,6 +80,11 @@ class Algorithm(object):
         print "Computation time for subtractive ART: " + str(end-start)
 
     def computeMultiplicativeART(self):
+        """
+        Computes the algebraic reconstruction using a multiplicative update method
+        as described above. 
+        NOT STABLE.
+        """
         nrIter = self.__nrIter 
         projections = self.__projections 
         systemMatrix = self.__systemMatrix

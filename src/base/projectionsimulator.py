@@ -26,13 +26,21 @@ class ProjectionSimulator(object):
         return self.__projections
 
     def initProjections(self):
+        """ Initialize the projections object. """
         self.__projections = Projections(self.__views, self.__nrBins)
 
     def projectAll(self, start, stop):
+        """ 
+        Simulate a parallel-beam x-ray projection by summing up the phantom
+        data matrix column wise, yielding a sinogram line. 
+        To this end, the number of bins (that the phantom is projected onto)
+        and the phantom pixel size should be equal. Otherwise, the phantom
+        needs to be reshaped.
+        """
         if self.phantom is None or self.projections is None: 
             return 
         if self.__nrBins != self.phantom.size:
-            pass #resize phantom
+            pass #TODO resize phantom
 
         #project first view
         self.__projections.project(0, self.phantom)
