@@ -3,8 +3,13 @@
 import numpy as np 
 import time
 from scipy.ndimage import interpolation 
+from . import enum
 
 class Algorithm(object):
+
+    Mode = enum(
+            ADDITIVE_ART=0, 
+            MULTIPLICATIVE_ART=1 )
 
     def __init__(self, mode, projections, systemMatrix, nrIter):
         self.__mode = mode
@@ -18,12 +23,12 @@ class Algorithm(object):
         return self.__result 
 
     def compute(self):
-        if self.__mode == Mode.SUBTRACTIVE_ART:
-            self.computeSubtractiveART(self.__nrIter, self.__projections, self.__systemMatrix)
-        elif self.__mode == Mode.MULTIPLICATIVE_ART:
+        if self.__mode == Algorithm.Mode.ADDITIVE_ART:
+            self.computeAdditiveART(self.__nrIter, self.__projections, self.__systemMatrix)
+        elif self.__mode == Algorithm.Mode.MULTIPLICATIVE_ART:
             self.computeMultiplicativeART()
 
-    def computeSubtractiveART(self, nrIter, projections, systemMatrix):
+    def computeAdditiveART(self, nrIter, projections, systemMatrix):
         estimate = np.zeros_like(systemMatrix.data[0])
         self.__result = []
         start = time.time()
@@ -70,7 +75,3 @@ class Algorithm(object):
             self.__result.append(estimate.copy())
         end = time.time()
         print "Computation time for multiplicative ART: " + str(end-start)
-
-class Mode:
-    SUBTRACTIVE_ART = 0
-    MULTIPLICATIVE_ART = 1
