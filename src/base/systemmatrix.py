@@ -13,7 +13,7 @@ class SystemMatrix(object):
         :attrib     __data | numpy.3darray
         """
         self.__dimensions = dimensions 
-        self.__data = np.zeros(dimensions)
+        self.__data = np.empty(dimensions)
 
     @property
     def data(self):
