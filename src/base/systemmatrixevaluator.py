@@ -1,5 +1,6 @@
 #!/usr/bin/python 
 
+import numpy as np
 from systemmatrix import SystemMatrix
 from . import enum
 
@@ -21,7 +22,8 @@ class SystemMatrixEvaluator(object):
     
     Mode = enum( 
             ROTATIONAL=0, 
-            LINE_LENGTH=1 )
+            BINARY=1,
+            LINE_LENGTH=2 )
 
     def __init__(self, views, size, mode):
         """
@@ -91,3 +93,43 @@ class SystemMatrixEvaluator(object):
                     print "Evaluating system matrix for view " + str(a)
                 rotPhantom = phantom.rotate(-a*angleInc)
                 self.systemMatrix.add(a, rotPhantom > 0.01)
+
+        elif self.mode == SystemMatrixEvaluator.Mode.BINARY:
+            if phantom is None:
+                return
+            #FIXME phantom may need to be shrinked
+            if self.size != phantom.size:
+                print "SME.evaluate(): Non-matching sizes"
+                return 
+            radius = (self.size-1)*0.5
+            mask = phantom.createCircularMask((self.size,self.size),
+                    (radius,radius), radius)
+            for a in range(self.views):
+                self.systemMatrix.add(a, mask.astype(np.float16))
+
+        elif self.mode == SystemMatrixEvaluator.Mode.LINE_LENGTH:
+            angleInc = (stop-start)/float(self.views)
+            # this mode has a custom number of views 
+            start = -45 
+            stop = 45
+            views = (stop-start)/angleInc
+            delta = 1.0
+            pixelsize = 1.0
+            systemMatrix = SystemMatrix(self.size, self.size, views)
+            nrBins = self.size
+            yIndices = 0.5*self.size - np.arange(self.size+1)
+            yIndices *= pixelsize
+            for v in range(views):
+                alpha = start + v*angleInc
+                invCosAlpha = 1.0/np.cos(alpha)
+                sinAlpha = np.sin(alpha)
+                for m in range(nrBins):
+                    mOffset = -0.5*delta*(nrBins - 2*m - 1)
+                    xIndices = invCosAlpha * (yIndices * sinAlpha + mOffset)
+                    inside = np.abs(xIndices) < 0.5*self.size
+                    deltaX = xIndices[1:] - xIndices[:-1]
+                    deltaY = yIndices[1:] - yIndices[:-1]
+                    intersectionLengths = np.sqrt( deltaX*delta + deltaY*deltaY )
+
+
+
