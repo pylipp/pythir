@@ -78,7 +78,7 @@ class Phantom(object):
             print "No phantom created."
             return
 
-        radius = self.size/2-1 
+        radius = (self.size-1)*0.5
         shape = (self.size, self.size)
         body = self.createCircularMask(shape, (radius,radius), radius)
         self.__data = np.zeros(shape)
