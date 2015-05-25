@@ -1,10 +1,11 @@
 #!/usr/bin/python 
 
 from PyQt4 import QtGui
+from pythirwidget import PythirWidget
 from . import loadUi 
 
 
-class AlgorithmWidget(QtGui.QWidget):
+class AlgorithmWidget(PythirWidget):
     """
     """
     def __init__(self, parent=None):

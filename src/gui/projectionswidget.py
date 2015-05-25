@@ -1,10 +1,11 @@
 #!/usr/bin/python 
 
 from PyQt4 import QtGui
+from pythirwidget import PythirWidget
 from . import loadUi 
 
 
-class ProjectionsWidget(QtGui.QWidget):
+class ProjectionsWidget(PythirWidget):
     """
     """
     def __init__(self, parent=None):
