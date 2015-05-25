@@ -23,7 +23,7 @@
       <widget class="QWidget" name="">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="UnitsWidget" name="unitsWidget" native="true">
+         <widget class="ProgramsWidget" name="programsWidget" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
             <horstretch>0</horstretch>
@@ -122,8 +122,8 @@
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
-        <widget class="ImageView" name="graphicsViewPhantom"/>
-        <widget class="PlotWidget" name="graphicsViewRmse"/>
+        <widget class="ImageView" name="imageViewPhantom"/>
+        <widget class="PlotWidget" name="plotWidgetRmse"/>
        </widget>
       </widget>
      </widget>
@@ -160,12 +160,6 @@
    <header>pyqtgraph</header>
   </customwidget>
   <customwidget>
-   <class>UnitsWidget</class>
-   <extends>QWidget</extends>
-   <header>src/gui/unitswidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>PhantomWidget</class>
    <extends>QWidget</extends>
    <header>src/gui/phantomwidget.h</header>
@@ -193,6 +187,12 @@
    <class>PlotWidget</class>
    <extends>QGraphicsView</extends>
    <header>pyqtgraph</header>
+  </customwidget>
+  <customwidget>
+   <class>ProgramsWidget</class>
+   <extends>QWidget</extends>
+   <header>src/gui/programswidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
