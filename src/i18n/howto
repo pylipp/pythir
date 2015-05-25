@@ -1,0 +1,16 @@
+- create source code using self.tr(str)
+- install translators in main 
+  * Qt pre-installed:
+    qt_translator.load("qt_de", QLibraryInfo.location(QLibraryInfo.TranslationsPath))
+  * custom (.qm file will be created during the next steps)
+    if custom_translator.load("project_de"):
+        app.installTranslator(t)
+
+- create .pro file specifying source files and custom .ts output file
+  SOURCES = *.py
+  FORMS = *.ui
+  TRANSLATIONS = project_de.ts
+- run pylupdate on .pro file in order to create .ts file
+- read .ts to QtLinguist and create translations one by one, save
+
+- convert the .ts file to .qm using lrelease
