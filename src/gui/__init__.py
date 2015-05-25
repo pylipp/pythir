@@ -22,6 +22,9 @@ import PyQt4.uic
 from PyQt4 import QtCore
 
 
+translate = QtCore.QCoreApplication.translate 
+
+
 def loadUi(modpath, widget):
     """
     Uses the PyQt4.uic.loadUi method to lead the input ui file associated
