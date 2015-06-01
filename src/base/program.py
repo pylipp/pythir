@@ -29,6 +29,18 @@ class Program(object):
     def phantom(self):
         return self.__phantom
 
+    @phantom.setter 
+    def phantom(self, phantom):
+        self.__phantom = phantom 
+
+    @property 
+    def projectionSimulator(self):
+        return self.__projectionSimulator 
+
+    @projectionSimulator.setter 
+    def projectionSimulator(self, ps):
+        self.__projectionSimulator = ps 
+
     @property 
     def result(self):
         return self.__result 
@@ -91,7 +103,7 @@ class Program(object):
                     mode | Algorithm.Mode 
         """
         if self.phantom is None:
-            self.__phantom = Phantom(size=101) 
+            self.__phantom = Phantom(size=100) 
             self.__phantom.create() 
 
         if self.phantom is None:
@@ -106,7 +118,7 @@ class Program(object):
         self.__sinogram = self.__projectionSimulator.projections 
 
         self.__systemMatrixEvaluator = SystemMatrixEvaluator(views,
-                self.phantom.size, SystemMatrixEvaluator.Mode.ROTATIONAL)
+                self.phantom.size, SystemMatrixEvaluator.Mode.BINARY)
         self.__systemMatrixEvaluator.initSystemMatrix(self.phantom.size, views)
         self.__systemMatrixEvaluator.evaluate(start, stop, self.phantom)
         self.__systemMatrix = self.__systemMatrixEvaluator.systemMatrix 
