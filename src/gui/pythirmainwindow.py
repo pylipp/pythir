@@ -1,7 +1,6 @@
 #!/usr/bin/python 
 
 from PyQt4 import QtGui, QtCore
-import numpy as np
 from . import loadUi 
 
 
@@ -12,13 +11,7 @@ class PythirMainWindow(QtGui.QMainWindow):
         super(PythirMainWindow, self).__init__()
         self.__app = app 
         loadUi(__file__, self)
-        # add 3D data for demonstration purpose
-        self.r = np.random.rand(10,100,100)
-        self.graphicsViewResults.setImage(self.r)
 
-        self.__subWidgets = [self.programsWidget, self.phantomWidget,
-                self.projectionsWidget, self.algorithmWidget,
-                self.reconstructionWidget]
         self.__programs = []
         self.__nrOfPrograms = 0
 
@@ -40,7 +33,7 @@ class PythirMainWindow(QtGui.QMainWindow):
         return self.currentProgram().phantom 
 
     def currentProgram(self):
-        index = self.programsWidget.listWidgetPrograms.currentRow()
+        index = self.sideWidget.listWidgetPrograms.currentRow()
         if index > -1 and index < len(self.__programs):
             return self.__programs[index]
         return 
@@ -59,12 +52,8 @@ class PythirMainWindow(QtGui.QMainWindow):
         self.__nrOfPrograms += 1
 
     def setMwToWidgets(self):
-        for w in self.__subWidgets:
-            w.setMw(self)
+        self.sideWidget.setMw(self)
 
     def setVisibilityAtInit(self):
         self.imageViewPhantom.setVisible(False)
         self.plotWidgetRmse.setVisible(False)
-        for w in self.__subWidgets:
-            break
-            #w.groupBox.setVisible(False)

@@ -7,127 +7,49 @@
     <x>0</x>
     <y>0</y>
     <width>1205</width>
-    <height>868</height>
+    <height>660</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>PythIR</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QSplitter" name="splitter_3">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
-      <property name="childrenCollapsible">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="ProgramsWidget" name="programsWidget" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>200</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="PhantomWidget" name="phantomWidget" native="true">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>200</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="ProjectionsWidget" name="projectionsWidget" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>200</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="AlgorithmWidget" name="algorithmWidget" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>200</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="ReconstructionWidget" name="reconstructionWidget" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>200</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QSplitter" name="splitter_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
-       <widget class="ImageView" name="graphicsViewResults"/>
-       <widget class="QSplitter" name="splitter">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>57</width>
+          <height>584</height>
+         </rect>
         </property>
-        <widget class="ImageView" name="imageViewPhantom"/>
-        <widget class="PlotWidget" name="plotWidgetRmse"/>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="PythirSideWidget" name="sideWidget" native="true"/>
+         </item>
+        </layout>
        </widget>
+      </widget>
+      <widget class="ImageView" name="imageViewResults"/>
+      <widget class="QSplitter" name="splitter">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="ImageView" name="imageViewPhantom"/>
+       <widget class="PlotWidget" name="plotWidgetRmse"/>
       </widget>
      </widget>
     </item>
@@ -163,38 +85,14 @@
    <header>pyqtgraph</header>
   </customwidget>
   <customwidget>
-   <class>PhantomWidget</class>
-   <extends>QWidget</extends>
-   <header>src/gui/phantomwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ProjectionsWidget</class>
-   <extends>QWidget</extends>
-   <header>src/gui/projectionswidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>AlgorithmWidget</class>
-   <extends>QWidget</extends>
-   <header>src/gui/algorithmwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ReconstructionWidget</class>
-   <extends>QWidget</extends>
-   <header>src/gui/reconstructionwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>PlotWidget</class>
    <extends>QGraphicsView</extends>
    <header>pyqtgraph</header>
   </customwidget>
   <customwidget>
-   <class>ProgramsWidget</class>
+   <class>PythirSideWidget</class>
    <extends>QWidget</extends>
-   <header>src/gui/programswidget.h</header>
+   <header>src/gui/pythirsidewidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
