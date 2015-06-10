@@ -11,6 +11,7 @@ class PythirMainWindow(QtGui.QMainWindow):
         super(PythirMainWindow, self).__init__()
         self.__app = app 
         loadUi(__file__, self)
+        self.setWindowState(QtCore.Qt.WindowMaximized)
 
         self.__programs = []
         self.__nrOfPrograms = 0

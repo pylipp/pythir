@@ -26,7 +26,9 @@ class PythirSideWidget(PythirWidget):
             translate("AlgorithmWidget", "Additive ART"):
                 Algorithm.Mode.ADDITIVE_ART, 
             translate("AlgorithmWidget", "Multiplicative ART"):
-                Algorithm.Mode.MULTIPLICATIVE_ART 
+                Algorithm.Mode.MULTIPLICATIVE_ART, 
+            translate("AlgorithmWidget", "SIRT"):
+                Algorithm.Mode.SIRT 
             }
 
     def __init__(self, parent=None):
@@ -51,6 +53,10 @@ class PythirSideWidget(PythirWidget):
         # Algorithm 
         self.pushButtonCompute.clicked.connect(self.onCompute)
         self.comboBoxAlgorithmMode.currentIndexChanged.connect(self.onCompute)
+        # Reconstruction
+        self.pushButtonPlotResult.clicked.connect(self.onPlotResult)
+        self.pushButtonComputeRmse.clicked.connect(self.onComputeRmse)
+        self.pushButtonPlotRmse.clicked.connect(self.onPlotRmse)
         
 
     # # # # # # # # # #
@@ -173,3 +179,16 @@ class PythirSideWidget(PythirWidget):
         self._mw.imageViewResults.clear()
         self._mw.imageViewResults.setImage(np.array(self._mw.currentProgram().result))
 
+    def onComputeRmse(self):
+        if self._mw.currentProgram().result is None:
+            return
+        self._mw.currentProgram().computeRmse()
+
+    def onPlotRmse(self, checked):
+        if self._mw.currentProgram().rmse is None:
+            return 
+        if checked:
+            self._mw.plotWidgetRmse.clear()
+            x, y = self._mw.currentProgram().rmse
+            self._mw.plotWidgetRmse.plot(np.array(x), np.array(y))
+        self._mw.plotWidgetRmse.setVisible(checked)
