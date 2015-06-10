@@ -21,7 +21,8 @@ class Algorithm(object):
     """
     Mode = enum(
             ADDITIVE_ART=0, 
-            MULTIPLICATIVE_ART=1 )
+            MULTIPLICATIVE_ART=1,
+            SIRT=2 )
 
     def __init__(self, mode, projections, systemMatrix, nrIter):
         """ 
@@ -52,6 +53,8 @@ class Algorithm(object):
             self.computeAdditiveART(self.__nrIter, self.__projections, self.__systemMatrix)
         elif self.__mode == Algorithm.Mode.MULTIPLICATIVE_ART:
             self.computeMultiplicativeART()
+        elif self.__mode == Algorithm.Mode.SIRT:
+            self.computeSirt()
 
     def computeAdditiveART(self, nrIter, projections, systemMatrix):
         """
@@ -109,3 +112,33 @@ class Algorithm(object):
             self.__result.append(estimate.copy())
         end = time.time()
         print "Computation time for multiplicative ART: " + str(end-start)
+
+    def computeSirt(self):
+        nrIter = self.__nrIter 
+        projections = self.__projections 
+        systemMatrix = self.__systemMatrix
+        estimate = np.zeros_like(systemMatrix.data[0])
+        self.__result = []
+        start = time.time()
+        relaxation = 1.4/float(projections.views)
+        for n in range(nrIter):
+            update = np.zeros_like(estimate)
+            print "Computing iteration " + str(n)
+            for v in range(projections.views):
+                try:
+                    currentSm = systemMatrix.data[v]
+                    angle = v*180/float(projections.views)
+                    rotatedEstimate = interpolation.rotate(estimate, -angle, reshape=False)
+                    backprojection = np.sum(currentSm * rotatedEstimate, axis=0)
+                    normalization = np.sum(currentSm * currentSm, axis=0)
+                    normalization[normalization == 0] = 1.0 #avoid division by zero 
+                    fraction = currentSm * (projections.data[v] - backprojection) / normalization 
+                    update += interpolation.rotate(fraction, angle, reshape=False)
+                except (ValueError, IndexError):
+                    import pdb; pdb.set_trace()
+            update *= relaxation 
+            estimate += update 
+            estimate[estimate < 0] = 0.0
+            self.__result.append(estimate.copy())
+        end = time.time()
+        print "Computation time for SIRT: " + str(end-start)
