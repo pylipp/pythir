@@ -380,21 +380,21 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pushButtonPlotResult">
         <property name="text">
          <string>Plot result</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="pushButtonComputeRmse">
         <property name="text">
          <string>Compute RMSE</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="pushButtonPlotRmse">
         <property name="text">
          <string>Plot RMSE</string>
         </property>
