@@ -43,6 +43,8 @@ class Program(object):
 
     @property 
     def result(self):
+        if self.__result is None:
+            return self.__algorithm.result
         return self.__result 
 
     @property
@@ -58,7 +60,10 @@ class Program(object):
         return self.__systemMatrix 
 
     def compute(self):
-        """ Starts the computation in the algorithm and stores the result. """
+        """ 
+        Starts the computation in the algorithm and stores the result.
+        Has become obsolete because computation is done via TaskHandler. 
+        """
         if self.__algorithm is None:
             return
         self.__algorithm.compute()
@@ -77,7 +82,7 @@ class Program(object):
         iteration = []
         rmse = []
         invNrPixels = 1.0/(np.prod(groundTruth.shape))
-        for i, image in enumerate(self.__result):
+        for i, image in enumerate(self.result):
             if image.shape != groundTruth.shape:
                 print "Mismatch in data dimensions. Skipping RMSE computation nr %i.", i
                 continue
