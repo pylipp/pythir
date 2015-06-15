@@ -5,8 +5,9 @@ import numpy as np
 from pythirwidget import PythirWidget
 from ..base.program import Program, Phantom, ProjectionSimulator 
 from ..base.algorithm import Algorithm 
+from ..base.additiveartalgorithm import AdditiveArtAlgorithm
 from ..base.systemmatrixevaluator import SystemMatrixEvaluator
-from projectionsimulatorhandler import ProjectionSimulatorHandler
+from projectionsimulatorhandler import TaskHandler
 from . import loadUi, translate
 
 
@@ -36,10 +37,13 @@ class PythirSideWidget(PythirWidget):
         super(PythirSideWidget, self).__init__(parent)
         loadUi(__file__, self)
 
+        self._threads = []
+
+        # Layout adjustments
         self.comboBoxSmMode.addItems(self.__class__.SmModeDict.keys())
         self.comboBoxAlgorithmMode.addItems(self.__class__.AlgorithmModeDict.keys())
-
         self.progressBarProjecting.hide()
+        self.progressBarComputing.hide()
 
         # Programs
         self.pushButtonNew.clicked.connect(self.onNew)
@@ -131,21 +135,24 @@ class PythirSideWidget(PythirWidget):
             return
         self.progressBarProjecting.setVisible(True)
         self.progressBarProjecting.setRange(0, self.spinBoxNrOfViews.value())
-        self._thread = QtCore.QThread()
-        thread = self._thread
         projSimulator = ProjectionSimulator( self.spinBoxNrOfViews.value(),
                 self.spinBoxNrOfBins.value(), self.currentPhantom(),
                 self.doubleSpinBoxStart.value(), self.doubleSpinBoxStop.value())
+        projSimulator.initProjections()
         self.currentProjectionSimulator = projSimulator
-        self._handler = ProjectionSimulatorHandler(projSimulator)
-        handler = self._handler
+        self._handler = TaskHandler(projSimulator)
+        self.setupHandlerAndThread(self._handler, self.progressBarProjecting)
+
+    def setupHandlerAndThread(self, handler, progressBar):
+        self._threads.append(QtCore.QThread())
+        thread = self._threads[-1]
         handler.moveToThread(thread)
         thread.started.connect(handler.process)
-        handler.updateProgress.connect(self.progressBarProjecting.setValue)
-        handler.finished.connect(lambda:
-                self.progressBarProjecting.setValue(self.spinBoxNrOfViews.value()))
+        handler.updateProgress.connect(progressBar.setValue)
+        #TODO move all this into separate function
+        handler.finished.connect(lambda: progressBar.setValue(progressBar.maximum()))
         handler.finished.connect(handler.deleteLater)
-        handler.finished.connect(self.progressBarProjecting.hide)
+        handler.finished.connect(progressBar.hide)
         thread.finished.connect(thread.deleteLater)
         thread.start()
 
@@ -176,16 +183,22 @@ class PythirSideWidget(PythirWidget):
                 self.doubleSpinBoxStop.value(),
                 phantom )
 
-        algorithm = Algorithm( 
-                self.__class__.AlgorithmModeDict[self.comboBoxAlgorithmMode.currentText()], 
+        algorithmMode = PythirSideWidget.AlgorithmModeDict[self.comboBoxAlgorithmMode.currentText()]
+        if algorithmMode == Algorithm.Mode.ADDITIVE_ART:
+            self._mw.currentProgram()._Program__algorithm = AdditiveArtAlgorithm(
                 self._mw.currentProjectionSimulator.projections, 
                 smEvaluator.systemMatrix,
                 self.spinBoxNrOfIterations.value() )
+            #TODO implement all the other modes
+        else:
+            pass
+            self._mw.currentProgram()._Program__algorithm = None #algorithm 
+        algorithm = self._mw.currentProgram()._Program__algorithm 
+        self.progressBarComputing.setVisible(True)
+        self.progressBarComputing.setRange(0, self.spinBoxNrOfIterations.value())
+        self._handler = TaskHandler(algorithm)
+        self.setupHandlerAndThread(self._handler, self.progressBarComputing)
 
-        #import pdb; QtCore.pyqtRemoveInputHook();  pdb.set_trace()
-        self._mw.currentProgram()._Program__algorithm = algorithm 
-        self._mw.currentProgram().compute()
-        #algorithm.compute()
 
     # # # # # # # # # #
     # RECONSTRUCTIONGROUPBOX
