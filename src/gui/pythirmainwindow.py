@@ -13,6 +13,11 @@ class PythirMainWindow(QtGui.QMainWindow):
         loadUi(__file__, self)
         self.setWindowState(QtCore.Qt.WindowMaximized)
 
+        #FIXME adjust the width of the sideWidget
+        print self.splitter_2.sizes()
+        self.splitter_2.adjustSize()
+        print self.splitter_2.sizes()
+
         self.__programs = []
         self.__nrOfPrograms = 0
 

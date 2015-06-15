@@ -6,6 +6,7 @@ from pythirwidget import PythirWidget
 from ..base.program import Program, Phantom, ProjectionSimulator 
 from ..base.algorithm import Algorithm 
 from ..base.systemmatrixevaluator import SystemMatrixEvaluator
+from projectionsimulatorhandler import ProjectionSimulatorHandler
 from . import loadUi, translate
 
 
@@ -38,6 +39,8 @@ class PythirSideWidget(PythirWidget):
         self.comboBoxSmMode.addItems(self.__class__.SmModeDict.keys())
         self.comboBoxAlgorithmMode.addItems(self.__class__.AlgorithmModeDict.keys())
 
+        self.progressBarProjecting.hide()
+
         # Programs
         self.pushButtonNew.clicked.connect(self.onNew)
         self.pushButtonDelete.clicked.connect(self.onDelete)
@@ -58,7 +61,6 @@ class PythirSideWidget(PythirWidget):
         self.pushButtonComputeRmse.clicked.connect(self.onComputeRmse)
         self.pushButtonPlotRmse.clicked.connect(self.onPlotRmse)
         
-
     # # # # # # # # # #
     # PROGRAMSGROUPBOX
     # # # # # # # # # #
@@ -127,17 +129,32 @@ class PythirSideWidget(PythirWidget):
     def onProjectPhantom(self):
         if self.currentPhantom() is None:
             return
+        self.progressBarProjecting.setVisible(True)
+        self.progressBarProjecting.setRange(0, self.spinBoxNrOfViews.value())
+        self._thread = QtCore.QThread()
+        thread = self._thread
         projSimulator = ProjectionSimulator( self.spinBoxNrOfViews.value(),
-                self.spinBoxNrOfBins.value(), self.currentPhantom() )
-        projSimulator.initProjections()
-        projSimulator.projectAll(self.doubleSpinBoxStart.value(),
-                self.doubleSpinBoxStop.value())
+                self.spinBoxNrOfBins.value(), self.currentPhantom(),
+                self.doubleSpinBoxStart.value(), self.doubleSpinBoxStop.value())
         self.currentProjectionSimulator = projSimulator
+        self._handler = ProjectionSimulatorHandler(projSimulator)
+        handler = self._handler
+        handler.moveToThread(thread)
+        thread.started.connect(handler.process)
+        handler.updateProgress.connect(self.progressBarProjecting.setValue)
+        handler.finished.connect(lambda:
+                self.progressBarProjecting.setValue(self.spinBoxNrOfViews.value()))
+        handler.finished.connect(handler.deleteLater)
+        handler.finished.connect(self.progressBarProjecting.hide)
+        thread.finished.connect(thread.deleteLater)
+        thread.start()
 
     def onShowSinogram(self):
-        if self.currentProjectionSimulator is None:
-            return 
-        self._mw.imageViewPhantom.setImage(self.currentProjectionSimulator.projections.data)
+        #TODO make this handle toggle behavior?
+        #if self.currentProjectionSimulator is None:
+            #return 
+        self._mw.imageViewPhantom.setVisible(True)
+        self._mw.imageViewPhantom.setImage(self._mw.currentProjectionSimulator.projections.data)
 
     # # # # # # # # # #
     # ALGORITHMGROUPBOX

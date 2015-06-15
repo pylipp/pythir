@@ -11,10 +11,13 @@ class ProjectionSimulator(object):
     If the reconstruction is performed using a binary system matrix, that
     matrix can be evaluated during the projection. 
     """
-    def __init__(self, views, nrBins, phantom=None):
+    def __init__(self, views, nrBins, phantom=None, start=0, stop=180):
         self.__phantom = phantom 
         self.__nrBins = nrBins
-        self.__views = views
+        self._views = views
+        self._start = start 
+        self._stop = stop
+        self._angleInc = (stop-start)/float(views)
         self.__projections = None
 
     @property 
@@ -25,11 +28,15 @@ class ProjectionSimulator(object):
     def projections(self):
         return self.__projections
 
+    @property 
+    def views(self):
+        return self._views 
+
     def initProjections(self):
         """ Initialize the projections object. """
-        self.__projections = Projections(self.__views, self.__nrBins)
+        self.__projections = Projections(self._views, self.__nrBins)
 
-    def projectAll(self, start, stop):
+    def projectAll(self, start=0, stop=180):
         """ 
         Simulate a parallel-beam x-ray projection by summing up the phantom
         data matrix column wise, yielding a sinogram line. 
@@ -37,17 +44,31 @@ class ProjectionSimulator(object):
         and the phantom pixel size should be equal. Otherwise, the phantom
         needs to be reshaped.
         """
+        if self.readyForProjecting():
+            for a in range(0, self._views):
+                if a%25==0:
+                    print "Projecting view " + str(a)
+                self.projectOne(a)
+
+    def projectOne(self, view):
+        """
+        Helper function. Performs a single projection.
+        Required in ProjectionSimulatorHandler.process() to signal progress
+        after a single projection. 
+
+        :param      view | int 
+        """
+        rotPhantom = self.phantom.rotate(self._start - view*self._angleInc)
+        self.__projections.project(view, rotPhantom)
+
+    def readyForProjecting(self):
+        """
+        Convenience method for checking prerequisites for projecting.
+
+        :return     isReady | bool 
+        """
         if self.phantom is None or self.projections is None: 
-            return 
+            return False
         if self.__nrBins != self.phantom.size:
             pass #TODO resize phantom
-
-        #project first view
-        self.__projections.project(0, self.phantom)
-        views = self.__views
-        angleInc = (stop-start)/float(views)
-        for a in range(1, views):
-            if a%25==0:
-                print "Projecting view " + str(a)
-            rotPhantom = self.phantom.rotate(-a*angleInc)
-            self.__projections.project(a, rotPhantom)
+        return True
