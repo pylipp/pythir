@@ -21,6 +21,10 @@ class ProjectionSimulator(object):
         self.__projections = None
 
     @property 
+    def loadSize(self):
+        return self._views
+
+    @property 
     def phantom(self):
         return self.__phantom 
 
@@ -48,9 +52,9 @@ class ProjectionSimulator(object):
             for a in range(0, self._views):
                 if a%25==0:
                     print "Projecting view " + str(a)
-                self.projectOne(a)
+                self.computeOne(a)
 
-    def projectOne(self, view):
+    def computeOne(self, view):
         """
         Helper function. Performs a single projection.
         Required in ProjectionSimulatorHandler.process() to signal progress
@@ -61,7 +65,7 @@ class ProjectionSimulator(object):
         rotPhantom = self.phantom.rotate(self._start - view*self._angleInc)
         self.__projections.project(view, rotPhantom)
 
-    def readyForProjecting(self):
+    def ready(self):
         """
         Convenience method for checking prerequisites for projecting.
 
