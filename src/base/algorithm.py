@@ -24,36 +24,42 @@ class Algorithm(object):
             MULTIPLICATIVE_ART=1,
             SIRT=2 )
 
-    def __init__(self, mode, projections, systemMatrix, nrIter):
+    def __init__(self, mode, *args): #projections, systemMatrix, nrIter):
         """ 
         :param      mode | Algorithm.Mode 
                     projections | Projections 
                     systemmatrix | SystemMatrix 
                     nrIter | int 
-        :attrib     __result | list[np.2darray]
+        :attrib     _result | list[np.2darray]
         """
-        self.__mode = mode
-        self.__projections = projections 
-        self.__systemMatrix = systemMatrix 
-        self.__nrIter = nrIter
-        self.__result = []
+        self._mode = mode
+        self._projections = args[0] 
+        self._systemMatrix = args[1] 
+        self._nrIter = args[2]
+        self._estimate = np.zeros_like(self._systemMatrix.data[0])
+        self._result = []
 
     @property 
     def result(self):
-        return self.__result 
+        return self._result 
+
+    @property 
+    def loadSize(self):
+        return self._nrIter
 
     def compute(self):
         """ 
         Calls computation method according to mode. 
+        #TODO Render this method abstract.
 
         :param      mode | Algorithm.mode 
         """
         #TODO unify the argument structure of the compute submethods
-        if self.__mode == Algorithm.Mode.ADDITIVE_ART:
-            self.computeAdditiveART(self.__nrIter, self.__projections, self.__systemMatrix)
-        elif self.__mode == Algorithm.Mode.MULTIPLICATIVE_ART:
+        if self._mode == Algorithm.Mode.ADDITIVE_ART:
+            self.computeAdditiveART(self._nrIter, self._projections, self._systemMatrix)
+        elif self._mode == Algorithm.Mode.MULTIPLICATIVE_ART:
             self.computeMultiplicativeART()
-        elif self.__mode == Algorithm.Mode.SIRT:
+        elif self._mode == Algorithm.Mode.SIRT:
             self.computeSirt()
 
     def computeAdditiveART(self, nrIter, projections, systemMatrix):
@@ -62,7 +68,7 @@ class Algorithm(object):
         as described above. 
         """
         estimate = np.zeros_like(systemMatrix.data[0])
-        self.__result = []
+        self._result = []
         start = time.time()
         for n in range(nrIter):
             print "Computing iteration " + str(n)
@@ -79,7 +85,7 @@ class Algorithm(object):
                     estimate[estimate < 0] = 0.0 #nonnegativity constraint
                 except ValueError:
                     import pdb; pdb.set_trace()
-            self.__result.append(estimate.copy())
+            self._result.append(estimate.copy())
         end = time.time()
         print "Computation time for subtractive ART: " + str(end-start)
 
@@ -89,11 +95,11 @@ class Algorithm(object):
         as described above. 
         NOT STABLE.
         """
-        nrIter = self.__nrIter 
-        projections = self.__projections 
-        systemMatrix = self.__systemMatrix
+        nrIter = self._nrIter 
+        projections = self._projections 
+        systemMatrix = self._systemMatrix
         estimate = 50*np.ones_like(systemMatrix.data[0])
-        self.__result = []
+        self._result = []
         start = time.time()
         for n in range(nrIter):
             print "Computing iteration " + str(n)
@@ -109,16 +115,16 @@ class Algorithm(object):
                     estimate *= interpolation.rotate(updateMatrix, angle, reshape=False)
                 except (ValueError, IndexError):
                     import pdb; pdb.set_trace()
-            self.__result.append(estimate.copy())
+            self._result.append(estimate.copy())
         end = time.time()
         print "Computation time for multiplicative ART: " + str(end-start)
 
     def computeSirt(self):
-        nrIter = self.__nrIter 
-        projections = self.__projections 
-        systemMatrix = self.__systemMatrix
+        nrIter = self._nrIter 
+        projections = self._projections 
+        systemMatrix = self._systemMatrix
         estimate = np.zeros_like(systemMatrix.data[0])
-        self.__result = []
+        self._result = []
         start = time.time()
         relaxation = 1.4/float(projections.views)
         for n in range(nrIter):
@@ -139,6 +145,6 @@ class Algorithm(object):
             update *= relaxation 
             estimate += update 
             estimate[estimate < 0] = 0.0
-            self.__result.append(estimate.copy())
+            self._result.append(estimate.copy())
         end = time.time()
         print "Computation time for SIRT: " + str(end-start)
