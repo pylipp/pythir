@@ -18,20 +18,20 @@ class PythirSideWidget(PythirWidget):
     """
 
     SmModeDict = {
-            translate("AlgorithmWidget", "Rotational"):
+            translate("PythirSideWidget", "Rotational"):
                 SystemMatrixEvaluator.Mode.ROTATIONAL, 
-            translate("AlgorithmWidget", "Binary"):
+            translate("PythirSideWidget", "Binary"):
                 SystemMatrixEvaluator.Mode.BINARY, 
-            translate("AlgorithmWidget", "Line length"):
+            translate("PythirSideWidget", "Line length"):
                 SystemMatrixEvaluator.Mode.LINE_LENGTH 
             }
 
     AlgorithmModeDict = {
-            translate("AlgorithmWidget", "Additive ART"):
+            translate("PythirSideWidget", "Additive ART"):
                 Algorithm.Mode.ADDITIVE_ART, 
-            translate("AlgorithmWidget", "Multiplicative ART"):
+            translate("PythirSideWidget", "Multiplicative ART"):
                 Algorithm.Mode.MULTIPLICATIVE_ART, 
-            translate("AlgorithmWidget", "SIRT"):
+            translate("PythirSideWidget", "SIRT"):
                 Algorithm.Mode.SIRT 
             }
 
