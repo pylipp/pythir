@@ -2,13 +2,14 @@
 
 import numpy as np 
 import time
+from abc import ABCMeta, abstractmethod
 from scipy.ndimage import interpolation 
 from . import enum
 
 class Algorithm(object):
     """
-    Class performing the essential numerical computations.
-    Appends the result of each iteration to a list. 
+    Abstract class performing the essential numerical computations.
+    Appends the result of each iteration to a result list. 
     Description of Modes:
     - ADDITIVE_ART: The difference of the (measured/simulated) projections and
       the current forward-projected estimate is back-projected in direction of
@@ -16,21 +17,33 @@ class Algorithm(object):
       Using SystemMatrixEvaluator.ROTATIONAL mode, one iteration already yields
       sufficient results.
     - MULTIPLICATIVE_ART: The current forward-projected estimate is
-      multiplicated with the current estimate. Currently, the implementation
-      diverges. 
+      multiplicated with the current estimate. The performance of this method
+      heavily depends on the initial estimate. MART automatically enforces
+      pixels to be nonnegative (if the initial value is nonnegative).
+    - SIMULTANEOUS_IRT/SIRT: The update is performed for one pixel at a time
+      using all equations that contribute to that pixel. 
+
+    References: Parts of the description above is adapted from Lalush's chapter
+    about iterative image reconstruction (2004).
+
+    :classattrib    Mode | enum
     """
+
+    __metaclass__ = ABCMeta
+
     Mode = enum(
             ADDITIVE_ART=0, 
             MULTIPLICATIVE_ART=1,
             SIRT=2 )
 
-    def __init__(self, mode, *args): #projections, systemMatrix, nrIter):
+    def __init__(self, mode, *args): 
         """ 
         :param      mode | Algorithm.Mode 
-                    projections | Projections 
+        :args       projections | Projections 
                     systemmatrix | SystemMatrix 
                     nrIter | int 
         :attrib     _result | list[np.2darray]
+                    _estimate | np.2darray
         """
         self._mode = mode
         self._projections = args[0] 
@@ -47,13 +60,13 @@ class Algorithm(object):
     def loadSize(self):
         return self._nrIter
 
+    @abstractmethod
     def compute(self):
         """ 
-        Calls computation method according to mode. 
-        #TODO Render this method abstract.
-
-        :param      mode | Algorithm.mode 
+        Performs the complete computation of all iterations.
+        Measures runtime using a timer. Prints updates to the console.
         """
+        pass
         #TODO unify the argument structure of the compute submethods
         if self._mode == Algorithm.Mode.ADDITIVE_ART:
             self.computeAdditiveART(self._nrIter, self._projections, self._systemMatrix)
@@ -62,6 +75,18 @@ class Algorithm(object):
         elif self._mode == Algorithm.Mode.SIRT:
             self.computeSirt()
 
+    @abstractmethod 
+    def computeOne(self, n):
+        """
+        Performs the computation of a single iteration.
+        Contains the core of the computation. Can be called as Task from a
+        TaskHandler. 
+        """
+        pass 
+
+    #######################################
+    #TODO Deprecate these computing methods
+    #######################################
     def computeAdditiveART(self, nrIter, projections, systemMatrix):
         """
         Computes the algebraic reconstruction using an additive update method
