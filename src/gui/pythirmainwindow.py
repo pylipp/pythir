@@ -1,5 +1,6 @@
 #!/usr/bin/python 
 
+from __future__ import print_function
 from PyQt4 import QtGui, QtCore
 from . import loadUi 
 
@@ -14,9 +15,14 @@ class PythirMainWindow(QtGui.QMainWindow):
         self.setWindowState(QtCore.Qt.WindowMaximized)
 
         #FIXME adjust the width of the sideWidget
-        print self.splitter_2.sizes()
-        self.splitter_2.adjustSize()
-        print self.splitter_2.sizes()
+        #self.splitter_2.setStretchFactor(0, 0)
+        #sh = self.splitter_2.sizeHint()
+        #print( sh.width(), sh.height())
+        #print(self.splitter_2.sizes())
+        #self.splitter_2.splitterMoved.connect(lambda:
+                #print(self.splitter_2.widget(0).widget().width() ))
+        #self.splitter_2.widget(0).resize(354, 
+                #self.splitter_2.widget(0).widget().height())
 
         self.__programs = []
         self.__nrOfPrograms = 0

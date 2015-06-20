@@ -5,7 +5,9 @@ import numpy as np
 from pythirwidget import PythirWidget
 from ..base.program import Program, Phantom, ProjectionSimulator 
 from ..base.algorithm import Algorithm 
-from ..base.additiveartalgorithm import AdditiveArtAlgorithm
+from ..base.additive_art_algorithm import AdditiveArtAlgorithm
+from ..base.multiplicative_art_algorithm import MultiplicativeArtAlgorithm
+from ..base.simultaneous_irt_algorithm import SimultaneousIrtAlgorithm
 from ..base.systemmatrixevaluator import SystemMatrixEvaluator
 from projectionsimulatorhandler import TaskHandler
 from . import loadUi, translate
@@ -59,7 +61,6 @@ class PythirSideWidget(PythirWidget):
         self.spinBoxNrOfViews.valueChanged.connect(self.progressBarProjecting.setMaximum)
         # Algorithm 
         self.pushButtonCompute.clicked.connect(self.onCompute)
-        self.comboBoxAlgorithmMode.currentIndexChanged.connect(self.onCompute)
         # Reconstruction
         self.pushButtonPlotResult.clicked.connect(self.onPlotResult)
         self.pushButtonComputeRmse.clicked.connect(self.onComputeRmse)
@@ -190,6 +191,17 @@ class PythirSideWidget(PythirWidget):
                 smEvaluator.systemMatrix,
                 self.spinBoxNrOfIterations.value() )
             #TODO implement all the other modes
+        elif algorithmMode == Algorithm.Mode.MULTIPLICATIVE_ART:
+            self._mw.currentProgram()._Program__algorithm = MultiplicativeArtAlgorithm(
+                self._mw.currentProjectionSimulator.projections, 
+                smEvaluator.systemMatrix,
+                self.spinBoxNrOfIterations.value() )
+        elif algorithmMode == Algorithm.Mode.SIRT:
+            self._mw.currentProgram()._Program__algorithm = SimultaneousIrtAlgorithm(
+                self._mw.currentProjectionSimulator.projections, 
+                smEvaluator.systemMatrix,
+                self.spinBoxNrOfIterations.value(),
+                relaxation=1.4) #TODO turn this into user definable parameter
         else:
             pass
             self._mw.currentProgram()._Program__algorithm = None #algorithm 
