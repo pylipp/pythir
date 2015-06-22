@@ -31,11 +31,8 @@ class Phantom(object):
         self.__fileName = None
         self.__data = None
         self.__pixelToMm = 1.0
-        for key in kwargs.iterkeys():
-            if key == 'fileName':
-                self.__fileName = kwargs[key]
-            elif key == 'size':
-                self.__size = kwargs[key] 
+        self.__fileName = kwargs.get('fileName')
+        self.__size = kwargs.get('size')
 
     @property
     def data(self):
