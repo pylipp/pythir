@@ -1,6 +1,7 @@
 #!/usr/bin/python 
 
 from PyQt4 import QtCore, QtGui 
+import time
 from . import translate
 
 class TaskHandler(QtCore.QObject):
@@ -31,9 +32,11 @@ class TaskHandler(QtCore.QObject):
         """
         if self._task is not None:
             if self._task.ready():
+                start = time.time()
                 for i in range(self._task.loadSize):
                     self._task.computeOne(i)
                     self.updateProgress.emit(i+1)
+                print "Processing time: {0}".format(time.time()-start)
                 self.finished.emit()
         else:
             QtGui.QMessageBox.information(None, 

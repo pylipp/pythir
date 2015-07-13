@@ -13,7 +13,7 @@ class SystemMatrix(object):
         :attrib     __data | numpy.3darray
         """
         self.__dimensions = dimensions 
-        self.__data = np.empty(dimensions)
+        self.__data = np.zeros(dimensions)
 
     @property
     def data(self):
@@ -50,3 +50,12 @@ class SystemMatrix(object):
     def reshape(self, shape):
         assert(np.product(shape) == np.product(self.__dimensions))
         return np.reshape(self.data, shape).copy()
+
+    def incrementValue(self, v, x, y, value):
+        self.__data[v,x,y] += value 
+
+    def __setitem__(self, v, x, y, value):
+        self.__data[v,x,y] = value
+
+    def __getitem__(self, v, x, y):
+        return self.__data[v, x, y]

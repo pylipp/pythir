@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>341</width>
+    <width>315</width>
     <height>861</height>
    </rect>
   </property>
@@ -86,9 +86,6 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxMagnitude"/>
-      </item>
       <item row="4" column="0">
        <widget class="QPushButton" name="pushButtonAddPoissonNoise">
         <property name="text">
@@ -99,7 +96,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
+      <item row="2" column="3">
        <widget class="QSpinBox" name="spinBoxSize">
         <property name="suffix">
          <string> pxls</string>
@@ -131,7 +128,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="4">
+      <item row="3" column="0" colspan="5">
        <widget class="Line" name="line_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -141,25 +138,25 @@
       <item row="4" column="1">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>magnitude</string>
+         <string>max. photons</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="4">
+      <item row="1" column="0" colspan="5">
        <widget class="Line" name="line">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="4">
+      <item row="5" column="0" colspan="5">
        <widget class="Line" name="line_3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="3">
+      <item row="6" column="0" colspan="4">
        <widget class="QPushButton" name="pushButtonShow">
         <property name="text">
          <string>Show</string>
@@ -185,8 +182,21 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1" colspan="2">
+      <item row="0" column="1" colspan="3">
        <widget class="QLineEdit" name="lineEditPath"/>
+      </item>
+      <item row="4" column="3">
+       <widget class="QSpinBox" name="spinBoxMaxPhotons">
+        <property name="maximum">
+         <number>1000000</number>
+        </property>
+        <property name="singleStep">
+         <number>1000</number>
+        </property>
+        <property name="value">
+         <number>10000</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
