@@ -146,6 +146,6 @@ class Phantom(object):
                     np.int32(self.data.shape[1]),
                     np.int32(self.data.shape[0]),
                     np.float32(np.sin(angle)),
-                    np.float32(np.cos(np.sin(angle))))
+                    np.float32(np.cos(angle)))
         else:
             return interpolation.rotate(self.__data, angle, reshape=False)
