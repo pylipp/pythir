@@ -9,7 +9,7 @@ from ..base.additive_art_algorithm import AdditiveArtAlgorithm
 from ..base.multiplicative_art_algorithm import MultiplicativeArtAlgorithm
 from ..base.simultaneous_irt_algorithm import SimultaneousIrtAlgorithm
 from ..base.systemmatrixevaluator import SystemMatrixEvaluator
-from projectionsimulatorhandler import TaskHandler
+from taskhandler import TaskHandler
 from . import loadUi, translate
 
 
