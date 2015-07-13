@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import interpolation
 
+from ..cl.clworker import ClWorker
+
 TISSUES = {'fat': 0.2, 'bone': 0.9, 'max': 1.0}
 
 class Phantom(object):
@@ -35,6 +37,7 @@ class Phantom(object):
         self.__pixelToMm = 1.0
         self.__fileName = kwargs.get('fileName')
         self.__size = kwargs.get('size')
+        self._clWorker = None
 
     @property
     def data(self):
@@ -87,6 +90,8 @@ class Phantom(object):
             print "No phantom created."
             return
         self._noisyData = np.empty_like(self.__data)
+        self._clWorker = ClWorker(taskName='rotate_img')
+        self._clWorker.init()
 
     def createCircularMask(self, shape, centre, radius, angle_range=(0,360)):
         """
@@ -131,5 +136,16 @@ class Phantom(object):
         assert(np.product(self.data.shape) == np.product(shape))
         return np.reshape(self.data, shape).copy()
 
-    def rotate(self, angle):
-         return interpolation.rotate(self.__data, angle, reshape=False)
+    def rotate(self, angle, useOpenCl=True):
+        if useOpenCl: 
+            if self._clWorker is None: 
+                return #not really great
+            angle = angle * np.pi / 180.0
+            return self._clWorker.process(
+                    self.__data.astype(np.float32), 
+                    np.int32(self.data.shape[1]),
+                    np.int32(self.data.shape[0]),
+                    np.float32(np.sin(angle)),
+                    np.float32(np.cos(np.sin(angle))))
+        else:
+            return interpolation.rotate(self.__data, angle, reshape=False)
