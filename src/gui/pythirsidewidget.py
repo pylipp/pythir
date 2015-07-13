@@ -53,7 +53,7 @@ class PythirSideWidget(PythirWidget):
         # Phantom
         self.pushButtonLoadFromFile.toggled.connect(self.onLoadFromFile)
         self.pushButtonCreate.toggled.connect(self.onCreate)
-        self.pushButtonAddPoissonNoise.clicked.connect(self.showNotImplementedMessage)
+        self.pushButtonAddPoissonNoise.clicked.connect(self.onTogglePoissonNoise)
         self.pushButtonShow.toggled.connect(self.onShow)
         # Projections
         self.pushButtonProjectPhantom.clicked.connect(self.onProjectPhantom)
@@ -121,6 +121,12 @@ class PythirSideWidget(PythirWidget):
         else:
             self._mw.imageViewPhantom.setVisible(False)
 
+    def onTogglePoissonNoise(self, checked):
+        if self.currentPhantom() is None:
+            return 
+        self.currentPhantom().toggleNoise(checked, self.spinBoxMaxPhotons.value())
+        self.updateImageView()
+
     def updateImageView(self):
         if not self.pushButtonShow.isChecked():
             return 
@@ -185,29 +191,24 @@ class PythirSideWidget(PythirWidget):
                 phantom )
 
         algorithmMode = PythirSideWidget.AlgorithmModeDict[self.comboBoxAlgorithmMode.currentText()]
+        args = (self._mw.currentProjectionSimulator.projections, 
+                smEvaluator.systemMatrix,
+                self.spinBoxNrOfIterations.value() )
         if algorithmMode == Algorithm.Mode.ADDITIVE_ART:
-            self._mw.currentProgram()._Program__algorithm = AdditiveArtAlgorithm(
-                self._mw.currentProjectionSimulator.projections, 
-                smEvaluator.systemMatrix,
-                self.spinBoxNrOfIterations.value() )
-            #TODO implement all the other modes
+            self._mw.currentProgram()._Program__algorithm = AdditiveArtAlgorithm(*args)
         elif algorithmMode == Algorithm.Mode.MULTIPLICATIVE_ART:
-            self._mw.currentProgram()._Program__algorithm = MultiplicativeArtAlgorithm(
-                self._mw.currentProjectionSimulator.projections, 
-                smEvaluator.systemMatrix,
-                self.spinBoxNrOfIterations.value() )
+            self._mw.currentProgram()._Program__algorithm = MultiplicativeArtAlgorithm(*args)
         elif algorithmMode == Algorithm.Mode.SIRT:
             self._mw.currentProgram()._Program__algorithm = SimultaneousIrtAlgorithm(
-                self._mw.currentProjectionSimulator.projections, 
-                smEvaluator.systemMatrix,
-                self.spinBoxNrOfIterations.value(),
-                relaxation=1.4) #TODO turn this into user definable parameter
+                *args, relaxation=1.4) #TODO turn this into user definable parameter
         else:
             pass
             self._mw.currentProgram()._Program__algorithm = None #algorithm 
+        # def current('algorithm')
         algorithm = self._mw.currentProgram()._Program__algorithm 
         self.progressBarComputing.setVisible(True)
         self.progressBarComputing.setRange(0, self.spinBoxNrOfIterations.value())
+        self.progressBarComputing.setValue(self.progressBarComputing.minimum())
         self._handler = TaskHandler(algorithm)
         self.setupHandlerAndThread(self._handler, self.progressBarComputing)
 

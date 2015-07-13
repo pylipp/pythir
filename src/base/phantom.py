@@ -30,6 +30,8 @@ class Phantom(object):
         self.__size = None
         self.__fileName = None
         self.__data = None
+        self._noisyData = None
+        self._noise = None
         self.__pixelToMm = 1.0
         self.__fileName = kwargs.get('fileName')
         self.__size = kwargs.get('size')
@@ -68,23 +70,23 @@ class Phantom(object):
                     self.__data = inputData
                 self.__size = np.max(self.data.shape)
                 #FIXME phantom shape should be quadratic.
-                return
             except IOError as e:
                 print str(e)
-        if self.size is None:
+        elif self.size is not None:
+            radius = (self.size-1)*0.5
+            shape = (self.size, self.size)
+            body = self.createCircularMask(shape, (radius,radius), radius)
+            self.__data = np.zeros(shape)
+            self.__data[body] = TISSUES['fat']
+            
+            #create the inlets
+            for m in [int(x) for x in [0.5*radius, radius, 1.5*radius]]:
+                inlet = self.createCircularMask(shape, (m,radius), 0.1*radius)
+                self.__data[inlet] = TISSUES['bone']
+        else:
             print "No phantom created."
             return
-
-        radius = (self.size-1)*0.5
-        shape = (self.size, self.size)
-        body = self.createCircularMask(shape, (radius,radius), radius)
-        self.__data = np.zeros(shape)
-        self.__data[body] = TISSUES['fat']
-        
-        #create the inlets
-        for m in [int(x) for x in [0.5*radius, radius, 1.5*radius]]:
-            inlet = self.createCircularMask(shape, (m,radius), 0.1*radius)
-            self.__data[inlet] = TISSUES['bone']
+        self._noisyData = np.empty_like(self.__data)
 
     def createCircularMask(self, shape, centre, radius, angle_range=(0,360)):
         """
@@ -111,6 +113,19 @@ class Phantom(object):
         # angular mask
         anglemask = theta <= (tmax-tmin)
         return circmask*anglemask
+
+    def swapData(self):
+        tmp = np.copy(self.__data)
+        self.__data[:,:] = np.copy(self._noisyData)[:,:]
+        self._noisyData[:,:] = tmp[:,:]
+
+    def toggleNoise(self, on, nrPhotons):
+        if on:
+            self._noisyData[:,:] = np.random.poisson( nrPhotons*self.__data)[:,:]
+            #normalize 
+            factor = np.sum(self.data)/np.sum(self._noisyData)
+            self._noisyData *= factor
+        self.swapData()
 
     def reshape(self, shape):
         assert(np.product(self.data.shape) == np.product(shape))
